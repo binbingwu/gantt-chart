@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gantt Chart Demo</title>
+  <link rel="stylesheet" href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css">
+  <script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      font-family: Arial, sans-serif;
+    }
+    #gantt_here {
+      width: 100%;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="gantt_here"></div>
+  <script>
+    gantt.config.xml_date = "%Y-%m-%d";
+    gantt.config.scale_unit = "month";
+    gantt.config.step = 12;
+    gantt.templates.date_scale = function(date){
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const quarter = Math.floor(month / 3) + 1;
+      return `${year}`;
+    };
+    
+    gantt.config.subscales = [
+      { unit: "month", step: 1, date: "%M" }
+    ];
+    gantt.config.min_column_width = 100;
+    gantt.config.scale_height = 60;
+    gantt.config.grid_width = 250;
+    gantt.config.autosize = "xy";
+    gantt.config.show_progress = true;
+
+    // ✅ 确保 link 类型定义完整
+    gantt.config.links = {
+      finish_to_start: "0",
+      start_to_start: "1",
+      finish_to_finish: "2",
+      start_to_finish: "3"
+    };
+
+    gantt.config.columns = [
+      { name: "text", label: "Task Name", tree: true, width: 200 },
+      { name: "duration", label: "Duration", align: "center" }
+    ];
+
+    gantt.templates.task_text = function (start, end, task) {
+      return task.text + " (" + Math.round(task.progress * 100) + "%)";
+    };
+
+    gantt.init("gantt_here");
+
+    // ✅ 加载 data.json
+    fetch("./data.json?v=" + Date.now())
+      .then(r => r.json())
+      .then(data => {
+        gantt.parse(data);
+      })
+      .catch(err => {
+        console.error("Failed to load data.json", err);
+        gantt.message({ text: "Cannot load data.json", type: "error" });
+      });
+  </script>
+</body>
+</html>

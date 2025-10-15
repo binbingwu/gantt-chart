@@ -1,0 +1,317 @@
+{
+  "generated_at": "2025-10-15T21:14:17.443424Z",
+  "data": [
+    {
+      "id": "PEA_ENV_Monitor",
+      "text": "Environmental monitoring",
+      "start_date": "2025-04-01",
+      "duration": 178,
+      "progress": 0.67,
+      "open": true,
+      "color": "#4CAF50"
+    },
+    {
+      "id": "PEA_ENV_Monitor_1",
+      "text": "Baseline Environmental Assessment",
+      "start_date": "2025-04-01",
+      "duration": 60,
+      "parent": "PEA_ENV_Monitor",
+      "progress": 1.0,
+      "open": true,
+      "color": "#2196F3"
+    },
+    {
+      "id": "PEA_ENV_Monitor_1.1",
+      "text": "Meeting with Monitoring Team",
+      "start_date": "2025-04-02",
+      "duration": 1,
+      "parent": "PEA_ENV_Monitor_1",
+      "color": "#FFEB3B"
+    },
+    {
+      "id": "PEA_ENV_Monitor_1.2",
+      "text": "Determine Monitoring Methodolgy",
+      "start_date": "2025-04-07",
+      "duration": 30,
+      "parent": "PEA_ENV_Monitor_1",
+      "color": "#FFEB3B"
+    },
+    {
+      "id": "PEA_ENV_Monitor_1.3",
+      "text": "Build Data Collection Survey",
+      "start_date": "2025-05-08",
+      "duration": 6,
+      "parent": "PEA_ENV_Monitor_1",
+      "color": "#FFEB3B"
+    },
+    {
+      "id": "PEA_ENV_Monitor_1.4",
+      "text": "Optimize Surveys",
+      "start_date": "2025-05-15",
+      "duration": 13,
+      "parent": "PEA_ENV_Monitor_1",
+      "color": "#FFEB3B"
+    },
+    {
+      "id": "PEA_ENV_Monitor_2",
+      "text": "Monitoring system deployment ",
+      "start_date": "2025-06-01",
+      "duration": 46,
+      "parent": "PEA_ENV_Monitor",
+      "progress": 1.0,
+      "open": true,
+      "color": "#2196F3"
+    },
+    {
+      "id": "PEA_ENV_Monitor_2.1",
+      "text": "Sampling Run 1",
+      "start_date": "2025-06-01",
+      "duration": 13,
+      "parent": "PEA_ENV_Monitor_2",
+      "color": "#FFEB3B"
+    },
+    {
+      "id": "PEA_ENV_Monitor_2.2",
+      "text": "Sampling Run 2",
+      "start_date": "2025-06-16",
+      "duration": 14,
+      "parent": "PEA_ENV_Monitor_2",
+      "color": "#FFEB3B"
+    },
+    {
+      "id": "PEA_ENV_Monitor_3_plan",
+      "text": "Data Analysis and Reporting  (Planned)",
+      "start_date": "2025-07-05",
+      "duration": 41,
+      "parent": "PEA_ENV_Monitor",
+      "color": "#F44336"
+    },
+    {
+      "id": "PEA_ENV_Monitor_3_actual",
+      "text": "Data Analysis and Reporting  (Actual)",
+      "start_date": "2025-07-24",
+      "duration": 64,
+      "parent": "PEA_ENV_Monitor",
+      "progress": 0.0,
+      "open": true,
+      "color": "#2196F3"
+    },
+    {
+      "id": "PEA_UTL_Solar",
+      "text": "Utility Solar",
+      "start_date": "2025-08-01",
+      "duration": 152,
+      "progress": 0.44,
+      "open": true,
+      "color": "#4CAF50"
+    },
+    {
+      "id": "PEA_UTL_Solar_1",
+      "text": "System Operations and Monitoring ",
+      "start_date": "2025-08-01",
+      "duration": 40,
+      "parent": "PEA_UTL_Solar",
+      "progress": 1.0,
+      "open": true,
+      "color": "#2196F3"
+    },
+    {
+      "id": "PEA_UTL_Solar_1.1",
+      "text": "Monitor solar output ",
+      "start_date": "2025-08-01",
+      "duration": 13,
+      "parent": "PEA_UTL_Solar_1",
+      "color": "#FFEB3B"
+    },
+    {
+      "id": "PEA_UTL_Solar_1.2",
+      "text": "Generate weekly report script",
+      "start_date": "2025-08-15",
+      "duration": 17,
+      "parent": "PEA_UTL_Solar_1",
+      "color": "#FFEB3B"
+    },
+    {
+      "id": "PEA_UTL_Solar_1.3",
+      "text": "Update real-time dashboards",
+      "start_date": "2025-09-01",
+      "duration": 14,
+      "parent": "PEA_UTL_Solar_1",
+      "color": "#FFEB3B"
+    },
+    {
+      "id": "PEA_UTL_Solar_2",
+      "text": "Customer Service and Billing ",
+      "start_date": "2025-09-10",
+      "duration": 51,
+      "parent": "PEA_UTL_Solar",
+      "progress": 0.33,
+      "open": true,
+      "color": "#2196F3"
+    },
+    {
+      "id": "PEA_UTL_Solar_2.1",
+      "text": "Track energy consumption",
+      "start_date": "2025-09-20",
+      "duration": 12,
+      "parent": "PEA_UTL_Solar_2",
+      "color": "#FFEB3B"
+    },
+    {
+      "id": "PEA_UTL_Solar_2.2",
+      "text": "Generate monthly billing reports",
+      "start_date": "2025-09-26",
+      "duration": 34,
+      "parent": "PEA_UTL_Solar_2",
+      "color": "#FFEB3B"
+    },
+    {
+      "id": "PEA_UTL_Solar_2.3",
+      "text": "Handle payment collection",
+      "start_date": "2025-10-01",
+      "duration": 30,
+      "parent": "PEA_UTL_Solar_2",
+      "color": "#FFEB3B"
+    },
+    {
+      "id": "PEA_UTL_Solar_3",
+      "text": "Performance Optimization ",
+      "start_date": "2025-11-07",
+      "duration": 54,
+      "parent": "PEA_UTL_Solar",
+      "progress": 0.0,
+      "open": true,
+      "color": "#2196F3"
+    },
+    {
+      "id": "PEA_UTL_Solar_3.1",
+      "text": "Plan capacity expansion",
+      "start_date": "2025-11-07",
+      "duration": 12,
+      "parent": "PEA_UTL_Solar_3",
+      "color": "#FFEB3B"
+    },
+    {
+      "id": "PEA_UTL_Solar_3.2",
+      "text": "Evaluate utilization efficiency",
+      "start_date": "2025-11-20",
+      "duration": 10,
+      "parent": "PEA_UTL_Solar_3",
+      "color": "#FFEB3B"
+    },
+    {
+      "id": "PEA_UTL_Solar_3.3",
+      "text": "Analyze seasonal generation",
+      "start_date": "2025-12-01",
+      "duration": 10,
+      "parent": "PEA_UTL_Solar_3",
+      "color": "#FFEB3B"
+    },
+    {
+      "id": "PEA_UTL_Solar_3.4",
+      "text": "Test new inverter firmware",
+      "start_date": "2025-12-12",
+      "duration": 19,
+      "parent": "PEA_UTL_Solar_3",
+      "color": "#FFEB3B"
+    }
+  ],
+  "links": [
+    {
+      "id": "link_1",
+      "source": "PEA_ENV_Monitor_1.1",
+      "target": "PEA_ENV_Monitor_1.2",
+      "type": "0"
+    },
+    {
+      "id": "link_2",
+      "source": "PEA_ENV_Monitor_1.2",
+      "target": "PEA_ENV_Monitor_1.3",
+      "type": "0"
+    },
+    {
+      "id": "link_3",
+      "source": "PEA_ENV_Monitor_1.3",
+      "target": "PEA_ENV_Monitor_1.4",
+      "type": "0"
+    },
+    {
+      "id": "link_4",
+      "source": "PEA_ENV_Monitor_1",
+      "target": "PEA_ENV_Monitor_2",
+      "type": "0"
+    },
+    {
+      "id": "link_5",
+      "source": "PEA_ENV_Monitor_2.1",
+      "target": "PEA_ENV_Monitor_2.2",
+      "type": "0"
+    },
+    {
+      "id": "link_6",
+      "source": "PEA_ENV_Monitor_3_plan",
+      "target": "PEA_ENV_Monitor_3_actual",
+      "type": "1"
+    },
+    {
+      "id": "link_7",
+      "source": "PEA_ENV_Monitor_2",
+      "target": "PEA_ENV_Monitor_3_actual",
+      "type": "0"
+    },
+    {
+      "id": "link_8",
+      "source": "PEA_UTL_Solar_1.1",
+      "target": "PEA_UTL_Solar_1.2",
+      "type": "0"
+    },
+    {
+      "id": "link_9",
+      "source": "PEA_UTL_Solar_1.2",
+      "target": "PEA_UTL_Solar_1.3",
+      "type": "0"
+    },
+    {
+      "id": "link_10",
+      "source": "PEA_UTL_Solar_1",
+      "target": "PEA_UTL_Solar_2",
+      "type": "0"
+    },
+    {
+      "id": "link_11",
+      "source": "PEA_UTL_Solar_2.1",
+      "target": "PEA_UTL_Solar_2.2",
+      "type": "0"
+    },
+    {
+      "id": "link_12",
+      "source": "PEA_UTL_Solar_2.2",
+      "target": "PEA_UTL_Solar_2.3",
+      "type": "0"
+    },
+    {
+      "id": "link_13",
+      "source": "PEA_UTL_Solar_2",
+      "target": "PEA_UTL_Solar_3",
+      "type": "0"
+    },
+    {
+      "id": "link_14",
+      "source": "PEA_UTL_Solar_3.1",
+      "target": "PEA_UTL_Solar_3.2",
+      "type": "0"
+    },
+    {
+      "id": "link_15",
+      "source": "PEA_UTL_Solar_3.2",
+      "target": "PEA_UTL_Solar_3.3",
+      "type": "0"
+    },
+    {
+      "id": "link_16",
+      "source": "PEA_UTL_Solar_3.3",
+      "target": "PEA_UTL_Solar_3.4",
+      "type": "0"
+    }
+  ]
+}
