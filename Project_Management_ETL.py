@@ -319,16 +319,16 @@ def main():
     
     # Export JSON for Gantt chart
 
-    os.makedirs("doc", exist_ok=True)
+    os.makedirs("docs", exist_ok=True)
     payload = {
         "generated_at": datetime.utcnow().isoformat() + "Z",
         "data": gantt_data,
         "links": gantt_links
     }
-    with open("doc/data.json", "w", encoding="utf-8") as f:
+    with open("docs/data.json", "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2, ensure_ascii=False)
 
-    print(f"✅ Wrote doc/data.json with {len(gantt_data)} tasks and {len(gantt_links)} links.")
+    print(f"✅ Wrote docs/data.json with {len(gantt_data)} tasks and {len(gantt_links)} links.")
 
 
 if __name__ == "__main__":
