@@ -2,31 +2,38 @@ name: Update ArcGIS Gantt Data
 
 on:
   schedule:
-    - cron: "0 2 * * 1"  # every Monday at 2 AM UTC
-  workflow_dispatch:       # allow manual trigger
+    - cron: "0 2 * * 1"   # 每周一 2 AM UTC 自动执行
+  workflow_dispatch:       # 手动触发
 
 permissions:
-  contents: write  # ✅ 允许 GitHub Actions 推送到仓库
+  contents: write          # 允许写入仓库内容
+  pages: write             # ✅ 允许触发 Pages 重新部署
+  id-token: write          # ✅ 有时 Pages API 校验需要
+  actions: write           # ✅ 允许触发下一个 workflow
 
 jobs:
-  build:
+  update:
     runs-on: ubuntu-latest
 
     steps:
+      # --- 1️⃣ 检出仓库代码 ---
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          persist-credentials: false  # ✅ 避免旧 token 冲突
+          persist-credentials: false  # 避免旧 Token 冲突
 
+      # --- 2️⃣ 设置 Python 环境 ---
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
+      # --- 3️⃣ 安装依赖 ---
       - name: Install dependencies
         run: |
           pip install pandas arcgis
 
+      # --- 4️⃣ 运行 ETL 脚本，生成最新 data.json ---
       - name: Run ETL script
         env:
           ARCGIS_USERNAME: ${{ secrets.ARCGIS_USERNAME }}
@@ -34,12 +41,32 @@ jobs:
         run: |
           python Project_Management_ETL.py
 
-      - name: Commit updated data.json
+      # --- 5️⃣ 提交 data.json 并刷新 HTML ---
+      - name: Commit updated data.json and refresh HTML
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/data.json
-          git commit -m "Auto update data.json" || echo "No changes"
+
+          # ✅ 轻触 HTML 文件更新时间戳，强制触发 Pages rebuild
+          touch docs/index.html
+
+          # ✅ 添加并提交改动
+          git add docs/data.json docs/index.html
+          git commit -m "Auto update data.json and refresh HTML" || echo "No changes"
+
+          # ✅ 推送到 main 分支
           git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git main
+
+      # --- 6️⃣ 主动触发 GitHub Pages 重新部署 ---
+      - name: Trigger GitHub Pages rebuild
+        run: |
+          echo "🔁 Triggering GitHub Pages rebuild..."
+          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               -H "Accept: application/vnd.github.v3+json" \
+               https://api.github.com/repos/${{ github.repository }}/pages/builds
+
+      # --- 7️⃣ 打印提示 ---
+      - name: Done
+        run: echo "✅ ArcGIS Gantt Data updated and Pages redeployed successfully."
