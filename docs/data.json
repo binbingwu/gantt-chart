@@ -1,20 +1,20 @@
 {
-  "generated_at": "2025-10-15T21:50:41.529731Z",
+  "generated_at": "2025-10-16T15:51:33.602716Z",
   "data": [
     {
       "id": "PEA_ENV_Monitor",
       "text": "Environmental monitoring",
       "start_date": "2025-04-01",
       "duration": 178,
-      "progress": 0.67,
+      "progress": 1.0,
       "open": true,
       "color": "#4CAF50"
     },
     {
       "id": "PEA_ENV_Monitor_1",
       "text": "Baseline Environmental Assessment",
-      "start_date": "2025-04-01",
-      "duration": 60,
+      "start_date": "2024-02-01",
+      "duration": 485,
       "parent": "PEA_ENV_Monitor",
       "progress": 1.0,
       "open": true,
@@ -92,9 +92,17 @@
       "start_date": "2025-07-24",
       "duration": 64,
       "parent": "PEA_ENV_Monitor",
-      "progress": 0.0,
+      "progress": 1.0,
       "open": true,
       "color": "#2196F3"
+    },
+    {
+      "id": "PEA_ENV_Monitor_3.1",
+      "text": "Data Cleaning",
+      "start_date": "2025-07-07",
+      "duration": 4,
+      "parent": "PEA_ENV_Monitor_3_actual",
+      "color": "#FFEB3B"
     },
     {
       "id": "PEA_UTL_Solar",
