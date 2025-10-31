@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Gantt Chart Demo</title>
+  <title>Gantt Chart – Project Filter Only</title>
   <link rel="stylesheet" href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css">
   <script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
   <style>
@@ -12,64 +12,178 @@
       height: 100%;
       width: 100%;
       font-family: Arial, sans-serif;
+      background-color: #fafafa;
+      overflow: hidden;
     }
-    #gantt_here {
+
+    /* ✅ Control bar */
+    #controls {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 10px 15px;
+      background: #f5f5f5;
+      border-bottom: 1px solid #ddd;
+    }
+
+    #zoomValue {
+      width: 60px;
+      text-align: right;
+      font-family: monospace;
+    }
+
+    /* ✅ Main layout */
+    #gantt_container {
       width: 100%;
-      height: 100vh;
+      height: calc(100vh - 60px);
+      overflow: auto;
+      position: relative;
+    }
+
+    #gantt_wrapper {
+      transform-origin: top left;
+      transition: transform 0.1s ease-out;
+      display: inline-block;
+    }
+
+    #gantt_here {
+      width: 1200px;
+      height: 800px;
     }
   </style>
 </head>
 <body>
-  <div id="gantt_here"></div>
+
+  <!-- ✅ Control bar -->
+  <div id="controls">
+    <div>
+      <label>Zoom:</label>
+      <input type="range" id="zoomSlider" min="0.5" max="2" step="0.01" value="1">
+      <span id="zoomValue">1.00×</span>
+    </div>
+    <div>
+      <label>Show Project:</label>
+      <select id="projectFilter">
+        <option value="all">All Projects</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ✅ Gantt container -->
+  <div id="gantt_container">
+    <div id="gantt_wrapper">
+      <div id="gantt_here"></div>
+    </div>
+  </div>
+
   <script>
+    // -----------------------
+    // Basic Gantt setup
+    // -----------------------
     gantt.config.xml_date = "%Y-%m-%d";
     gantt.config.scale_unit = "month";
     gantt.config.step = 12;
-    gantt.templates.date_scale = function(date){
-      const year = date.getFullYear();
-      const month = date.getMonth();
-      const quarter = Math.floor(month / 3) + 1;
-      return `${year}`;
-    };
-    
-    gantt.config.subscales = [
-      { unit: "month", step: 1, date: "%M" }
-    ];
-    gantt.config.min_column_width = 150;
+    gantt.config.subscales = [{ unit: "month", step: 1, date: "%M" }];
+    gantt.config.min_column_width = 100;
     gantt.config.scale_height = 60;
-    gantt.config.grid_width = 150;
+    gantt.config.grid_width = 250;
     gantt.config.autosize = "xy";
     gantt.config.show_progress = true;
-
-    // ✅ 确保 link 类型定义完整
-    gantt.config.links = {
-      finish_to_start: "0",
-      start_to_start: "1",
-      finish_to_finish: "2",
-      start_to_finish: "3"
-    };
 
     gantt.config.columns = [
       { name: "text", label: "Task Name", tree: true, width: 200 },
       { name: "duration", label: "Duration", align: "center" }
     ];
 
-    gantt.templates.task_text = function (start, end, task) {
-      return task.text + " (" + Math.round(task.progress * 100) + "%)";
-    };
+    gantt.templates.task_text = (start, end, task) =>
+      `${task.text} (${Math.round(task.progress * 100)}%)`;
 
     gantt.init("gantt_here");
 
-    // ✅ 加载 data.json
+    // -----------------------
+    // Load data.json
+    // -----------------------
     fetch("./data.json?v=" + Date.now())
       .then(r => r.json())
       .then(data => {
         gantt.parse(data);
+        setupProjectDropdown(data.data);
+        setupProjectFilterBehavior();
       })
-      .catch(err => {
-        console.error("Failed to load data.json", err);
-        gantt.message({ text: "Cannot load data.json", type: "error" });
+      .catch(err => gantt.message({ text: "Cannot load data.json", type: "error" }));
+
+    // -----------------------
+    // ✅ Create project dropdown
+    // -----------------------
+    function setupProjectDropdown(tasks) {
+      const projectFilter = document.getElementById("projectFilter");
+      const projects = tasks.filter(t => !t.parent); // root level
+      projects.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = p.text;
+        projectFilter.appendChild(opt);
       });
+    }
+
+    // -----------------------
+    // ✅ Dropdown behavior: expand selected, collapse others, auto scroll
+    // -----------------------
+    function setupProjectFilterBehavior() {
+      const projectFilter = document.getElementById("projectFilter");
+
+      projectFilter.addEventListener("change", () => {
+        const selectedId = projectFilter.value;
+
+        gantt.eachTask(task => {
+          if (!task.parent) {
+            if (selectedId === "all") {
+              gantt.open(task.id); // expand all
+            } else if (task.id === selectedId) {
+              gantt.open(task.id); // expand selected
+            } else {
+              gantt.close(task.id); // collapse others
+            }
+          }
+        });
+
+        // Auto scroll to the selected project
+        if (selectedId !== "all") {
+          gantt.showTask(selectedId);
+        }
+
+        // Filter: only show selected project and its children
+        if (selectedId === "all") {
+          gantt.filterTask = null;
+        } else {
+          gantt.filterTask = function(id, task) {
+            if (task.id === selectedId) return true;
+            let parent = task.parent;
+            while (parent) {
+              if (parent === selectedId) return true;
+              parent = gantt.getTask(parent)?.parent;
+            }
+            return false;
+          };
+        }
+
+        gantt.render();
+      });
+    }
+
+    // -----------------------
+    // ✅ Continuous zoom
+    // -----------------------
+    const zoomSlider = document.getElementById("zoomSlider");
+    const zoomValueLabel = document.getElementById("zoomValue");
+    const ganttWrapper = document.getElementById("gantt_wrapper");
+
+    zoomSlider.addEventListener("input", () => {
+      const scale = parseFloat(zoomSlider.value);
+      ganttWrapper.style.transform = `scale(${scale})`;
+      zoomValueLabel.textContent = scale.toFixed(2) + "×";
+    });
   </script>
+
 </body>
 </html>
