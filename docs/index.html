@@ -53,8 +53,8 @@
   <div id="controls">
     <div>
       <label>Zoom:</label>
-      <input type="range" id="zoomSlider" min="0.5" max="2" step="0.01" value="1">
-      <span id="zoomValue">1.00×</span>
+      <input type="range" id="zoomSlider" min="0.5" max="2" step="0.01" value="0.6">
+      <span id="zoomValue">0.60×</span>
     </div>
     <div id="filterInfo">Showing: All Projects</div>
   </div>
@@ -93,6 +93,13 @@
     gantt.attachEvent("onBeforeTaskDisplay", id => !VISIBLE_IDS || VISIBLE_IDS.has(id));
 
     // -----------------------
+    // 读取URL参数
+    // -----------------------
+    const params = new URLSearchParams(window.location.search);
+    const zoomParam = parseFloat(params.get("zoom")) || 0.6; // 默认缩放0.6
+    const projectParam = params.get("project");
+
+    // -----------------------
     // 数据加载
     // -----------------------
     fetch("./data.json?v=" + Date.now())
@@ -100,6 +107,7 @@
       .then(data => {
         gantt.parse(data);
         applyProjectFilterFromURL(data.data);
+        setInitialZoom(zoomParam); // ✅ 设置初始缩放
       })
       .catch(() => gantt.message({ text: "Cannot load data.json", type: "error" }));
 
@@ -107,10 +115,7 @@
     // 根据 URL 参数过滤
     // -----------------------
     function applyProjectFilterFromURL(tasks) {
-      const params = new URLSearchParams(window.location.search);
-      const projectParam = params.get("project");
       const filterInfo = document.getElementById("filterInfo");
-
       if (!projectParam || projectParam === "all") {
         VISIBLE_IDS = null;
         filterInfo.textContent = "Showing: All Projects";
@@ -142,7 +147,7 @@
       }
       collectDescendants(selectedTask.id);
 
-      // ✅ 向上追溯父链
+      // ✅ 向上追溯父链并添加兄弟
       let parent = selectedTask.parent;
       let parentChain = [];
       while (parent) {
@@ -150,8 +155,7 @@
         parent = gantt.getTask(parent).parent;
       }
 
-      // ✅ 展示父项、父兄弟、父父项
-      parentChain.forEach((pid, index) => {
+      parentChain.forEach(pid => {
         visible.add(pid);
         gantt.getChildren(pid).forEach(sibling => visible.add(sibling));
       });
@@ -169,7 +173,7 @@
     }
 
     // -----------------------
-    // 自动时间范围（子项按父项时间范围）
+    // 自动时间范围调整
     // -----------------------
     function adjustTimeScaleToSelection(taskId) {
       let targetTask = gantt.getTask(taskId);
@@ -223,6 +227,13 @@
       ganttWrapper.style.transform = `scale(${scale})`;
       zoomValueLabel.textContent = scale.toFixed(2) + "×";
     });
+
+    // ✅ 初始缩放函数
+    function setInitialZoom(scale) {
+      zoomSlider.value = scale;
+      ganttWrapper.style.transform = `scale(${scale})`;
+      zoomValueLabel.textContent = scale.toFixed(2) + "×";
+    }
   </script>
 </body>
 </html>
