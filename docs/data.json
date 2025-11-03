@@ -87,7 +87,7 @@
       "color": "#F44336"
     },
     {
-      "id": "PEA_ENV_Monitor_3_actual",
+      "id": "PEA_ENV_Monitor_3",
       "text": "Data Analysis and Reporting  (Actual)",
       "start_date": "2025-07-24",
       "duration": 64,
@@ -101,7 +101,7 @@
       "text": "Data Cleaning",
       "start_date": "2025-07-07",
       "duration": 4,
-      "parent": "PEA_ENV_Monitor_3_actual",
+      "parent": "PEA_ENV_Monitor_3",
       "color": "#FFEB3B"
     },
     {
@@ -109,7 +109,7 @@
       "text": "Run Analysis",
       "start_date": "2025-08-21",
       "duration": 6,
-      "parent": "PEA_ENV_Monitor_3_actual",
+      "parent": "PEA_ENV_Monitor_3",
       "color": "#FFEB3B"
     },
     {
@@ -266,13 +266,13 @@
     {
       "id": "link_6",
       "source": "PEA_ENV_Monitor_3_plan",
-      "target": "PEA_ENV_Monitor_3_actual",
+      "target": "PEA_ENV_Monitor_3",
       "type": "1"
     },
     {
       "id": "link_7",
       "source": "PEA_ENV_Monitor_2",
-      "target": "PEA_ENV_Monitor_3_actual",
+      "target": "PEA_ENV_Monitor_3",
       "type": "0"
     },
     {
