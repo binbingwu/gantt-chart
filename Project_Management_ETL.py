@@ -171,7 +171,7 @@ def main():
                     })
                     # 🟦 Blue = actual
                     gantt_data.append({
-                        "id": f"{obj_id}_actual",
+                        "id": f"{obj_id}",
                         "text": f"{obj_name} (Actual)",
                         "start_date": safe_date_str(s_act),
                         "duration": day_diff(s_act, e_act),
@@ -184,7 +184,7 @@ def main():
                     gantt_links.append({
                         "id": f"link_{link_id}",
                         "source": f"{obj_id}_plan",
-                        "target": f"{obj_id}_actual",
+                        "target": f"{obj_id}",
                         "type": "1"
                     })
                     link_id += 1
@@ -194,11 +194,11 @@ def main():
                         gantt_links.append({
                             "id": f"link_{link_id}",
                             "source": prev_obj_blue,
-                            "target": f"{obj_id}_actual",
+                            "target": f"{obj_id}",
                             "type": "0"
                         })
                         link_id += 1
-                    prev_obj_blue = f"{obj_id}_actual"
+                    prev_obj_blue = f"{obj_id}"
 
                     # 🟨 Yellow subtasks (under blue actual)
                     task_group = task_pd[task_pd["T_ObjID"] == obj_id].sort_values("Task_StartDate")
@@ -211,7 +211,7 @@ def main():
                             "text": t.get("TaskName", t_id),
                             "start_date": safe_date_str(s_t),
                             "duration": day_diff(s_t, e_t),
-                            "parent": f"{obj_id}_actual",
+                            "parent": f"{obj_id}",
                             "color": get_color("task")
                         })
                         if prev_task:
