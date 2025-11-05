@@ -66,16 +66,17 @@
   </div>
 
   <script>
-    // -----------------------
-    // 基础配置
-    // -----------------------
     gantt.config.xml_date = "%Y-%m-%d";
-    gantt.config.scale_unit = "month";
-    gantt.config.step = 1;
-    gantt.config.subscales = [{ unit: "month", step: 1, date: "%M" }];
-    gantt.config.min_column_width = 80;
+
+    // 新版尺度配置写法
+    gantt.config.scales = [
+      { unit: "year", step: 1, format: "%Y" },
+      { unit: "month", step: 1, format: "%M" }
+    ];
+
+    gantt.config.min_column_width = 150;
     gantt.config.scale_height = 60;
-    gantt.config.grid_width = 250;
+    gantt.config.grid_width = 150;
     gantt.config.autosize = "xy";
     gantt.config.show_progress = true;
 
@@ -88,7 +89,7 @@
       `${task.text} (${Math.round((task.progress || 0) * 100)}%)`;
 
     gantt.init("gantt_here");
-
+   
     let VISIBLE_IDS = null;
     gantt.attachEvent("onBeforeTaskDisplay", id => !VISIBLE_IDS || VISIBLE_IDS.has(id));
 
