@@ -68,15 +68,28 @@
   <script>
     gantt.config.xml_date = "%Y-%m-%d";
 
-    // 新版尺度配置写法
+    // ✅ 新版尺度配置：主刻度为年，子刻度为月
     gantt.config.scales = [
-      { unit: "year", step: 1, format: "%Y" },
-      { unit: "month", step: 1, format: "%M" }
+      {
+      unit: "year",
+      step: 1,
+      format: function(date){
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        const quarter = Math.floor(month / 3) + 1;
+        return `${year}`;  // 保留你的原逻辑：仅显示年份
+        }
+      },
+      {
+      unit: "month",
+      step: 1,
+      format: "%M"  // 月份显示
+      }
     ];
 
     gantt.config.min_column_width = 100;
     gantt.config.scale_height = 60;
-    gantt.config.grid_width = 150;
+    gantt.config.grid_width = 80;
     gantt.config.autosize = "xy";
     gantt.config.show_progress = true;
 
