@@ -9,9 +9,9 @@ from arcgis.features import FeatureLayer
 # login in ArcGIS Online
 gis = GIS("https://www.arcgis.com", os.getenv("ARCGIS_USERNAME"), os.getenv("ARCGIS_PASSWORD"))
 
-PROJECT_URL = "https://services.arcgis.com/FsUQjymePMCjUecp/arcgis/rest/services/ICA_PM_Test/FeatureServer/0"
-OBJECT_URL  = "https://services.arcgis.com/FsUQjymePMCjUecp/arcgis/rest/services/ICA_PM_Test/FeatureServer/2"
-TASK_URL    = "https://services.arcgis.com/FsUQjymePMCjUecp/arcgis/rest/services/ICA_PM_Test/FeatureServer/4"
+PROJECT_URL = "https://services.arcgis.com/FsUQjymePMCjUecp/arcgis/rest/services/ICA_bbw/FeatureServer/0"
+OBJECT_URL  = "https://services.arcgis.com/FsUQjymePMCjUecp/arcgis/rest/services/ICA_bbw/FeatureServer/9"
+TASK_URL    = "https://services.arcgis.com/FsUQjymePMCjUecp/arcgis/rest/services/ICA_bbw/FeatureServer/6"
 
 
 
@@ -103,12 +103,12 @@ def main():
     task_pd    = fl_to_df(TASK_URL)
 
     # Convert timestamps
-    for c in ["Obj_StartDate", "Obj_EndDate", "Obj_ActStartDa", "Obj_ActEndDa"]:
+    for c in ["ObjStartDate", "ObjEndDate", "ObjActStartDa", "ObjActEndDa"]:
         if c in object_pd.columns:
             object_pd[c] = object_pd[c].apply(to_dt_ms)
         else:
             print(f"⚠️ Missing column: {c}")
-    for c in ["Task_StartDate", "Task_EndDate"]:
+    for c in ["TaskStartDate", "TaskEndDate"]:
         if c in task_pd.columns:
             task_pd[c] = task_pd[c].apply(to_dt_ms)
 
@@ -122,8 +122,8 @@ def main():
         progress = compute_progress_project(prj_id, object_pd, task_pd)
         objs = object_pd[object_pd["O_PrjID"] == prj_id]
 
-        start = objs["Obj_StartDate"].min() if not objs.empty else pd.NaT
-        end   = max(objs["Obj_ActEndDa"].max(), objs["Obj_EndDate"].max()) if not objs.empty else pd.NaT
+        start = objs["ObjStartDate"].min() if not objs.empty else pd.NaT
+        end   = max(objs["ObjActEndDa"].max(), objs["ObjEndDate"].max()) if not objs.empty else pd.NaT
         duration = day_diff(start, end)
 
         gantt_data.append({
@@ -137,11 +137,11 @@ def main():
         })
 
         prev_obj_blue = None
-        for _, obj in objs.sort_values("Obj_StartDate").iterrows():
+        for _, obj in objs.sort_values("ObjStartDate").iterrows():
             obj_id = obj["ObjID"]
             obj_name = obj.get("ObjName", obj_id)
-            s_plan, e_plan = obj.get("Obj_StartDate"), obj.get("Obj_EndDate")
-            s_act, e_act = obj.get("Obj_ActStartDa"), obj.get("Obj_ActEndDa")
+            s_plan, e_plan = obj.get("ObjStartDate"), obj.get("ObjEndDate")
+            s_act, e_act = obj.get("ObjActStartDa"), obj.get("ObjActEndDa")
 
             has_all_dates = all(pd.notna(x) for x in [s_plan, e_plan, s_act, e_act])
             print(obj_name, s_plan, e_plan, s_act, e_act)
@@ -201,11 +201,11 @@ def main():
                     prev_obj_blue = f"{obj_id}"
 
                     # 🟨 Yellow subtasks (under blue actual)
-                    task_group = task_pd[task_pd["T_ObjID"] == obj_id].sort_values("Task_StartDate")
+                    task_group = task_pd[task_pd["T_ObjID"] == obj_id].sort_values("TaskStartDate")
                     prev_task = None
                     for _, t in task_group.iterrows():
                         t_id = t["TaskID"]
-                        s_t, e_t = t.get("Task_StartDate"), t.get("Task_EndDate")
+                        s_t, e_t = t.get("TaskStartDate"), t.get("TaskEndDate")
                         gantt_data.append({
                             "id": t_id,
                             "text": t.get("TaskName", t_id),
@@ -247,11 +247,11 @@ def main():
                     prev_obj_blue = obj_id
 
                     # 🟨 Yellow subtasks
-                    task_group = task_pd[task_pd["T_ObjID"] == obj_id].sort_values("Task_StartDate")
+                    task_group = task_pd[task_pd["T_ObjID"] == obj_id].sort_values("TaskStartDate")
                     prev_task = None
                     for _, t in task_group.iterrows():
                         t_id = t["TaskID"]
-                        s_t, e_t = t.get("Task_StartDate"), t.get("Task_EndDate")
+                        s_t, e_t = t.get("TaskStartDate"), t.get("TaskEndDate")
                         gantt_data.append({
                             "id": t_id,
                             "text": t.get("TaskName", t_id),
@@ -293,11 +293,11 @@ def main():
                 prev_obj_blue = obj_id
 
                 # 🟨 Yellow subtasks
-                task_group = task_pd[task_pd["T_ObjID"] == obj_id].sort_values("Task_StartDate")
+                task_group = task_pd[task_pd["T_ObjID"] == obj_id].sort_values("TaskStartDate")
                 prev_task = None
                 for _, t in task_group.iterrows():
                     t_id = t["TaskID"]
-                    s_t, e_t = t.get("Task_StartDate"), t.get("Task_EndDate")
+                    s_t, e_t = t.get("TaskStartDate"), t.get("TaskEndDate")
                     gantt_data.append({
                         "id": t_id,
                         "text": t.get("TaskName", t_id),
