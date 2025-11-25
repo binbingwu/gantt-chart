@@ -103,7 +103,7 @@ def main():
     task_pd    = fl_to_df(TASK_URL)
 
     # Convert timestamps
-    for c in ["ObjStartDate", "ObjEndDate", "ObjActStartDa", "ObjActEndDa"]:
+    for c in ["ObjStartDate", "ObjEndDate", "ObjActStartDate", "ObjActEndDate"]:
         if c in object_pd.columns:
             object_pd[c] = object_pd[c].apply(to_dt_ms)
         else:
@@ -123,7 +123,7 @@ def main():
         objs = object_pd[object_pd["O_PrjID"] == prj_id]
 
         start = objs["ObjStartDate"].min() if not objs.empty else pd.NaT
-        end   = max(objs["ObjActEndDa"].max(), objs["ObjEndDate"].max()) if not objs.empty else pd.NaT
+        end   = max(objs["ObjActEndDate"].max(), objs["ObjEndDate"].max()) if not objs.empty else pd.NaT
         duration = day_diff(start, end)
 
         gantt_data.append({
@@ -141,7 +141,7 @@ def main():
             obj_id = obj["ObjID"]
             obj_name = obj.get("ObjName", obj_id)
             s_plan, e_plan = obj.get("ObjStartDate"), obj.get("ObjEndDate")
-            s_act, e_act = obj.get("ObjActStartDa"), obj.get("ObjActEndDa")
+            s_act, e_act = obj.get("ObjActStartDa"), obj.get("ObjActEndDate")
 
             has_all_dates = all(pd.notna(x) for x in [s_plan, e_plan, s_act, e_act])
             print(obj_name, s_plan, e_plan, s_act, e_act)
