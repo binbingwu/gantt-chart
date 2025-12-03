@@ -25,7 +25,7 @@ def run_pipeline():
     except Exception as e:
         print(f"💥 Unhandled exception in Step 1: {e}")
         sys.exit(1)
-
+    sleep(10)
     # --- Step 2: Gantt Chart Generation (Visualization) ---
     print("\n>>> STEP 2: Generating Gantt Chart JSON...")
     try:
