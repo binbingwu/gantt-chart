@@ -98,7 +98,7 @@ def generate_gantt():
                 obj_id = obj["ObjID"]
                 s_act, e_act = obj.get("ObjActStartDate"), obj.get("ObjActEndDate")
                 s_plan = obj.get("ObjStartDate")
-                
+                e_plan = obj.get("ObjEndDate")
                 # Check Delay
                 color = get_color("object")
                 is_late = False
