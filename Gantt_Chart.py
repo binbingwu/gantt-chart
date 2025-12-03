@@ -1,335 +1,166 @@
 import os
 import json
 import math
-from datetime import datetime
 import pandas as pd
-
+from datetime import datetime
 from arcgis.gis import GIS
 from arcgis.features import FeatureLayer
-# login in ArcGIS Online
-gis = GIS("https://www.arcgis.com", os.getenv("ARCGIS_USERNAME"), os.getenv("ARCGIS_PASSWORD"))
+
+# --- Configuration ---
+ARCGIS_USERNAME = os.environ.get("ARCGIS_USERNAME")
+ARCGIS_PASSWORD = os.environ.get("ARCGIS_PASSWORD")
+ARCGIS_URL = "https://www.arcgis.com"
 
 PROJECT_URL = "https://services.arcgis.com/FsUQjymePMCjUecp/arcgis/rest/services/ICA_bbw/FeatureServer/0"
 OBJECT_URL  = "https://services.arcgis.com/FsUQjymePMCjUecp/arcgis/rest/services/ICA_bbw/FeatureServer/9"
 TASK_URL    = "https://services.arcgis.com/FsUQjymePMCjUecp/arcgis/rest/services/ICA_bbw/FeatureServer/6"
+WS_URL      = "https://services.arcgis.com/FsUQjymePMCjUecp/arcgis/rest/services/ICA_bbw/FeatureServer/5"
 
-
-
-# Utility functions
-
-def fl_to_df(url: str) -> pd.DataFrame:
-    """Query a FeatureLayer and convert it to a pandas DataFrame"""
-    fl = FeatureLayer(url)
-    q = fl.query(where="1=1", out_fields="*")
-    feats = q.features or []
-    return pd.DataFrame([f.attributes for f in feats]) if feats else pd.DataFrame()
-
+def fl_to_df(url):
+    try:
+        fl = FeatureLayer(url)
+        q = fl.query(where="1=1", out_fields="*")
+        feats = q.features or []
+        return pd.DataFrame([f.attributes for f in feats]) if feats else pd.DataFrame()
+    except Exception:
+        return pd.DataFrame()
 
 def to_dt_ms(val):
-    """Convert milliseconds timestamp to pandas datetime"""
     try:
-        if val is None or (isinstance(val, float) and math.isnan(val)):
-            return pd.NaT
+        if val is None or (isinstance(val, float) and math.isnan(val)): return pd.NaT
         return pd.to_datetime(int(val), unit="ms", errors="coerce")
-    except Exception:
-        return pd.NaT
-
+    except: return pd.NaT
 
 def safe_date_str(dt):
-    """Return a formatted date string (default to 2025-01-01 if NaT)"""
     return dt.strftime("%Y-%m-%d") if pd.notna(dt) else "2025-01-01"
 
-
-def get_color(level: str) -> str:
-    """Color mapping by task level"""
-    colors = {
-        "project": "#4CAF50",  # green
-        "object": "#2196F3",   # blue
-        "task": "#FFEB3B",     # yellow
-        "delayed": "#F44336"   # red
-    }
+def get_color(level):
+    colors = {"project": "#4CAF50", "object": "#2196F3", "task": "#FC0BB3", "ws": "#FF9800", "delayed": "#F44336"}
     return colors.get(level, "#9E9E9E")
 
-
-def same_day(d1, d2):
-    """Compare only year, month, and day"""
-    if pd.isna(d1) or pd.isna(d2):
-        return False
-    return (d1.year == d2.year) and (d1.month == d2.month) and (d1.day == d2.day)
-
-
 def day_diff(d1, d2):
-    """Calculate day difference between two dates (min = 1)"""
-    if pd.isna(d1) or pd.isna(d2):
-        return 1
+    if pd.isna(d1) or pd.isna(d2): return 1
     return max(1, (d2.normalize() - d1.normalize()).days)
 
+def parse_dependencies(val):
+    if pd.isna(val) or val == "": return []
+    return [x.strip() for x in str(val).split(";") if x.strip()]
 
-
-#  Progress calculation
-
-def compute_progress_task(row: pd.Series) -> float:
-    """If TaskStatus == 3 → complete"""
-    try:
-        return 1.0 if int(row.get("TaskStatus", 0) or 0) == 3 else 0.0
-    except Exception:
-        return 0.0
-
-
-def compute_progress_object(obj_id: str, task_df: pd.DataFrame) -> float:
-    """Object progress = average completion rate of its tasks"""
-    related = task_df[task_df["T_ObjID"] == obj_id]
-    if related.empty:
-        return 0.0
-    return related.apply(compute_progress_task, axis=1).mean()
-
-
-def compute_progress_project(prj_id: str, obj_df: pd.DataFrame, task_df: pd.DataFrame) -> float:
-    """Project progress = average completion rate of its objects"""
-    related_objs = obj_df[obj_df["O_PrjID"] == prj_id]
-    if related_objs.empty:
-        return 0.0
-    vals = [compute_progress_object(o["ObjID"], task_df) for _, o in related_objs.iterrows()]
-    return sum(vals) / len(vals)
-
-
-#  Main logic
-
-def main():
-    print("🔄 Fetching ArcGIS data...")
-
-    project_pd = fl_to_df(PROJECT_URL)
-    object_pd  = fl_to_df(OBJECT_URL)
-    task_pd    = fl_to_df(TASK_URL)
-
-    # Convert timestamps
-    for c in ["ObjStartDate", "ObjEndDate", "ObjActStartDate", "ObjActEndDate"]:
-        if c in object_pd.columns:
-            object_pd[c] = object_pd[c].apply(to_dt_ms)
-        else:
-            print(f"⚠️ Missing column: {c}")
-    for c in ["TaskStartDate", "TaskEndDate"]:
-        if c in task_pd.columns:
-            task_pd[c] = task_pd[c].apply(to_dt_ms)
-
-    gantt_data = []
-    gantt_links = []
-    link_id = 1
-
-    for _, prj in project_pd.iterrows():
-        prj_id = prj["PrjID"]
-        prj_name = prj.get("PrjName", prj_id)
-        progress = compute_progress_project(prj_id, object_pd, task_pd)
-        objs = object_pd[object_pd["O_PrjID"] == prj_id]
-
-        start = objs["ObjStartDate"].min() if not objs.empty else pd.NaT
-        end   = max(objs["ObjActEndDate"].max(), objs["ObjEndDate"].max()) if not objs.empty else pd.NaT
-        duration = day_diff(start, end)
-
-        gantt_data.append({
-            "id": prj_id,
-            "text": prj_name,
-            "start_date": safe_date_str(start),
-            "duration": duration,
-            "progress": round(float(progress), 2),
-            "open": True,
-            "color": get_color("project")
-        })
-
-        prev_obj_blue = None
-        for _, obj in objs.sort_values("ObjStartDate").iterrows():
-            obj_id = obj["ObjID"]
-            obj_name = obj.get("ObjName", obj_id)
-            s_plan, e_plan = obj.get("ObjStartDate"), obj.get("ObjEndDate")
-            s_act, e_act = obj.get("ObjActStartDa"), obj.get("ObjActEndDate")
-
-            has_all_dates = all(pd.notna(x) for x in [s_plan, e_plan, s_act, e_act])
-            print(obj_name, s_plan, e_plan, s_act, e_act)
-
-            if has_all_dates:
-                # ✅ Delay only if actual start is 1 or more days later than planned
-                is_late = False
-                try:
-                    delay_start_days = (s_act.normalize() - s_plan.normalize()).days if (pd.notna(s_act) and pd.notna(s_plan)) else 0
-                    if delay_start_days >= 1:
-                        is_late = True
-                    # If actual end < planned start → not considered delay
-                    if pd.notna(e_act) and pd.notna(s_plan) and (e_act < s_plan):
-                        is_late = False
-                except Exception:
-                    is_late = False
-
-                if is_late:
-                    # 🟥 Red = planned task (delayed)
-                    gantt_data.append({
-                        "id": f"{obj_id}_plan",
-                        "text": f"{obj_name} (Planned)",
-                        "start_date": safe_date_str(s_plan),
-                        "duration": day_diff(s_plan, e_plan),
-                        "parent": prj_id,
-                        "color": get_color("delayed")
-                    })
-                    # 🟦 Blue = actual
-                    gantt_data.append({
-                        "id": f"{obj_id}",
-                        "text": f"{obj_name} (Actual)",
-                        "start_date": safe_date_str(s_act),
-                        "duration": day_diff(s_act, e_act),
-                        "parent": prj_id,
-                        "progress": round(float(compute_progress_object(obj_id, task_pd)), 2),
-                        "open": True,
-                        "color": get_color("object")
-                    })
-                    # 🟥→🟦 Start-to-Start link
-                    gantt_links.append({
-                        "id": f"link_{link_id}",
-                        "source": f"{obj_id}_plan",
-                        "target": f"{obj_id}",
-                        "type": "1"
-                    })
-                    link_id += 1
-
-                    # Link between blue bars
-                    if prev_obj_blue:
-                        gantt_links.append({
-                            "id": f"link_{link_id}",
-                            "source": prev_obj_blue,
-                            "target": f"{obj_id}",
-                            "type": "0"
-                        })
-                        link_id += 1
-                    prev_obj_blue = f"{obj_id}"
-
-                    # 🟨 Yellow subtasks (under blue actual)
-                    task_group = task_pd[task_pd["T_ObjID"] == obj_id].sort_values("TaskStartDate")
-                    prev_task = None
-                    for _, t in task_group.iterrows():
-                        t_id = t["TaskID"]
-                        s_t, e_t = t.get("TaskStartDate"), t.get("TaskEndDate")
-                        gantt_data.append({
-                            "id": t_id,
-                            "text": t.get("TaskName", t_id),
-                            "start_date": safe_date_str(s_t),
-                            "duration": day_diff(s_t, e_t),
-                            "parent": f"{obj_id}",
-                            "color": get_color("task")
-                        })
-                        if prev_task:
-                            gantt_links.append({
-                                "id": f"link_{link_id}",
-                                "source": prev_task,
-                                "target": t_id,
-                                "type": "0"
-                            })
-                            link_id += 1
-                        prev_task = t_id
-
-                else:
-                    # 🔵 Normal (no delay)
-                    gantt_data.append({
-                        "id": obj_id,
-                        "text": obj_name,
-                        "start_date": safe_date_str(s_act or s_plan),
-                        "duration": day_diff(s_act or s_plan, e_act or e_plan),
-                        "parent": prj_id,
-                        "progress": round(float(compute_progress_object(obj_id, task_pd)), 2),
-                        "open": True,
-                        "color": get_color("object")
-                    })
-                    if prev_obj_blue:
-                        gantt_links.append({
-                            "id": f"link_{link_id}",
-                            "source": prev_obj_blue,
-                            "target": obj_id,
-                            "type": "0"
-                        })
-                        link_id += 1
-                    prev_obj_blue = obj_id
-
-                    # 🟨 Yellow subtasks
-                    task_group = task_pd[task_pd["T_ObjID"] == obj_id].sort_values("TaskStartDate")
-                    prev_task = None
-                    for _, t in task_group.iterrows():
-                        t_id = t["TaskID"]
-                        s_t, e_t = t.get("TaskStartDate"), t.get("TaskEndDate")
-                        gantt_data.append({
-                            "id": t_id,
-                            "text": t.get("TaskName", t_id),
-                            "start_date": safe_date_str(s_t),
-                            "duration": day_diff(s_t, e_t),
-                            "parent": obj_id,
-                            "color": get_color("task")
-                        })
-                        if prev_task:
-                            gantt_links.append({
-                                "id": f"link_{link_id}",
-                                "source": prev_task,
-                                "target": t_id,
-                                "type": "0"
-                            })
-                            link_id += 1
-                        prev_task = t_id
-
-            else:
-                # ❗ Missing date fields → use planned dates (blue)
-                gantt_data.append({
-                    "id": obj_id,
-                    "text": obj_name,
-                    "start_date": safe_date_str(s_plan),
-                    "duration": day_diff(s_plan, e_plan),
-                    "parent": prj_id,
-                    "progress": round(float(compute_progress_object(obj_id, task_pd)), 2),
-                    "open": True,
-                    "color": get_color("object")
-                })
-                if prev_obj_blue:
-                    gantt_links.append({
-                        "id": f"link_{link_id}",
-                        "source": prev_obj_blue,
-                        "target": obj_id,
-                        "type": "0"
-                    })
-                    link_id += 1
-                prev_obj_blue = obj_id
-
-                # 🟨 Yellow subtasks
-                task_group = task_pd[task_pd["T_ObjID"] == obj_id].sort_values("TaskStartDate")
-                prev_task = None
-                for _, t in task_group.iterrows():
-                    t_id = t["TaskID"]
-                    s_t, e_t = t.get("TaskStartDate"), t.get("TaskEndDate")
-                    gantt_data.append({
-                        "id": t_id,
-                        "text": t.get("TaskName", t_id),
-                        "start_date": safe_date_str(s_t),
-                        "duration": day_diff(s_t, e_t),
-                        "parent": obj_id,
-                        "color": get_color("task")
-                    })
-                    if prev_task:
-                        gantt_links.append({
-                            "id": f"link_{link_id}",
-                            "source": prev_task,
-                            "target": t_id,
-                            "type": "0"
-                        })
-                        link_id += 1
-                    prev_task = t_id
-
+# --- Main Logic ---
+def generate_gantt():
+    print("\n[MODULE] Starting Gantt_Chart generation...")
     
-    # Export JSON for Gantt chart
+    # Optional Login (Good practice, even if reading public layers)
+    if ARCGIS_USERNAME and ARCGIS_PASSWORD:
+        try:
+            GIS(ARCGIS_URL, ARCGIS_USERNAME, ARCGIS_PASSWORD)
+        except Exception as e:
+            print(f"⚠️ Login warning (continuing anonymously if allowed): {e}")
 
-    os.makedirs("docs", exist_ok=True)
-    payload = {
-        "generated_at": datetime.utcnow().isoformat() + "Z",
-        "data": gantt_data,
-        "links": gantt_links
-    }
-    with open("docs/data.json", "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=2, ensure_ascii=False)
+    try:
+        print("   📥 Fetching fresh data...")
+        project_pd = fl_to_df(PROJECT_URL)
+        object_pd  = fl_to_df(OBJECT_URL)
+        task_pd    = fl_to_df(TASK_URL)
+        ws_pd      = fl_to_df(WS_URL)
 
-    print(f"✅ Wrote docs/data.json with {len(gantt_data)} tasks and {len(gantt_links)} links.")
+        # Date Conversions
+        for df, cols in [
+            (object_pd, ["ObjStartDate", "ObjEndDate", "ObjActStartDate", "ObjActEndDate"]),
+            (task_pd, ["TaskStartDate", "TaskEndDate", "TaskActStartDate", "TaskActEndDate"]),
+            (ws_pd, ["WsStartDate", "WsEndDate", "WsActStartDate", "WsActEndDate"])
+        ]:
+            if not df.empty:
+                for c in cols:
+                    if c in df.columns: df[c] = df[c].apply(to_dt_ms)
 
+        gantt_data = []
+        gantt_links = []
+        link_cnt = 1
+
+        # --- Nodes Generation ---
+        for _, prj in project_pd.iterrows():
+            prj_id = prj["PrjID"]
+            objs = object_pd[object_pd["O_PrjID"] == prj_id] if not object_pd.empty else pd.DataFrame()
+            
+            # Simple Project Node
+            start = objs["ObjStartDate"].min() if not objs.empty else pd.NaT
+            end   = max(objs["ObjActEndDate"].max(), objs["ObjEndDate"].max()) if not objs.empty else pd.NaT
+            
+            gantt_data.append({
+                "id": prj_id, "text": prj.get("PrjName", prj_id),
+                "start_date": safe_date_str(start), "duration": day_diff(start, end),
+                "open": True, "color": get_color("project"), "progress": 0.5 
+            })
+
+            # Objects
+            for _, obj in objs.iterrows():
+                obj_id = obj["ObjID"]
+                s_act, e_act = obj.get("ObjActStartDate"), obj.get("ObjActEndDate")
+                s_plan = obj.get("ObjStartDate")
+                
+                # Check Delay
+                color = get_color("object")
+                if pd.notna(s_act) and pd.notna(s_plan) and s_act > s_plan:
+                    color = get_color("delayed")
+
+                gantt_data.append({
+                    "id": obj_id, "text": obj.get("ObjName", obj_id),
+                    "start_date": safe_date_str(s_act or s_plan),
+                    "duration": day_diff(s_act or s_plan, e_act or obj.get("ObjEndDate")),
+                    "parent": prj_id, "color": color, "progress": 0.0
+                })
+
+                # Tasks
+                t_group = task_pd[task_pd["T_ObjID"] == obj_id] if not task_pd.empty else pd.DataFrame()
+                for _, t in t_group.iterrows():
+                    t_id = t["TaskID"]
+                    ts, te = t.get("TaskActStartDate") or t.get("TaskStartDate"), t.get("TaskActEndDate") or t.get("TaskEndDate")
+                    gantt_data.append({
+                        "id": t_id, "text": t.get("TaskName", t_id),
+                        "start_date": safe_date_str(ts), "duration": day_diff(ts, te),
+                        "parent": obj_id, "color": get_color("task")
+                    })
+
+                # WS
+                w_group = ws_pd[ws_pd["Ws_ObjID"] == obj_id] if not ws_pd.empty else pd.DataFrame()
+                for _, w in w_group.iterrows():
+                    w_id = w.get("WsID")
+                    ws, we = w.get("WsActStartDate") or w.get("WsStartDate"), w.get("WsActEndDate") or w.get("WsEndDate")
+                    gantt_data.append({
+                        "id": w_id, "text": w.get("WsName", w_id),
+                        "start_date": safe_date_str(ws), "duration": day_diff(ws, we),
+                        "parent": obj_id, "color": get_color("ws")
+                    })
+
+        # --- Links Generation ---
+        # Task Links
+        if not task_pd.empty:
+            for _, row in task_pd.iterrows():
+                target = row.get("TaskID")
+                for src in parse_dependencies(row.get("T_PreTaskID")) + parse_dependencies(row.get("T_PreWsID")):
+                    gantt_links.append({"id": f"L{link_cnt}", "source": src, "target": target, "type": "0"})
+                    link_cnt += 1
+        # WS Links
+        if not ws_pd.empty:
+            for _, row in ws_pd.iterrows():
+                target = row.get("WsID")
+                for src in parse_dependencies(row.get("Ws_PreTaskID")) + parse_dependencies(row.get("Ws_PreWsID")):
+                    gantt_links.append({"id": f"L{link_cnt}", "source": src, "target": target, "type": "0"})
+                    link_cnt += 1
+
+        # Export
+        os.makedirs("docs", exist_ok=True)
+        payload = {"generated_at": datetime.utcnow().isoformat() + "Z", "data": gantt_data, "links": gantt_links}
+        with open("docs/data.json", "w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=2, ensure_ascii=False)
+        
+        print(f"   ✅ JSON generated: {len(gantt_data)} items.")
+        return True
+
+    except Exception as e:
+        print(f"❌ Error in Gantt Generation: {e}")
+        return False
 
 if __name__ == "__main__":
-    main()
+    generate_gantt()
