@@ -1,14 +1,14 @@
 {
-  "generated_at": "2025-12-01T18:55:31.993288Z",
+  "generated_at": "2025-12-03T19:03:08.501849Z",
   "data": [
     {
       "id": "PEA_IND_Env_Monitor",
       "text": "PEA_IND_Env_Monitor",
       "start_date": "2025-10-13",
       "duration": 79,
-      "progress": 0.5,
       "open": true,
-      "color": "#4CAF50"
+      "color": "#4CAF50",
+      "progress": 0.5
     },
     {
       "id": "PEA_IND_Env_Monitor_A",
@@ -16,9 +16,8 @@
       "start_date": "2025-10-13",
       "duration": 35,
       "parent": "PEA_IND_Env_Monitor",
-      "progress": 1.0,
-      "open": true,
-      "color": "#2196F3"
+      "color": "#F44336",
+      "progress": 0.0
     },
     {
       "id": "PEA_IND_Env_Monitor_A_T_1",
@@ -26,7 +25,7 @@
       "start_date": "2025-10-14",
       "duration": 13,
       "parent": "PEA_IND_Env_Monitor_A",
-      "color": "#FFEB3B"
+      "color": "#FC0BB3"
     },
     {
       "id": "PEA_IND_Env_Monitor_A_T_2",
@@ -34,7 +33,7 @@
       "start_date": "2025-11-01",
       "duration": 16,
       "parent": "PEA_IND_Env_Monitor_A",
-      "color": "#FFEB3B"
+      "color": "#FC0BB3"
     },
     {
       "id": "PEA_IND_Env_Monitor_B",
@@ -42,9 +41,8 @@
       "start_date": "2025-11-20",
       "duration": 41,
       "parent": "PEA_IND_Env_Monitor",
-      "progress": 0.0,
-      "open": true,
-      "color": "#2196F3"
+      "color": "#F44336",
+      "progress": 0.0
     },
     {
       "id": "PEA_IND_Env_Monitor_B_T_1",
@@ -52,16 +50,16 @@
       "start_date": "2025-11-20",
       "duration": 20,
       "parent": "PEA_IND_Env_Monitor_B",
-      "color": "#FFEB3B"
+      "color": "#FC0BB3"
     },
     {
       "id": "PEA_SKILL_Foundations",
       "text": "PEA_SKILL_Foundations",
       "start_date": "2025-08-04",
       "duration": 66,
-      "progress": 0.0,
       "open": true,
-      "color": "#4CAF50"
+      "color": "#4CAF50",
+      "progress": 0.5
     },
     {
       "id": "PEA_SKILL_Foundations_A",
@@ -69,9 +67,24 @@
       "start_date": "2025-08-04",
       "duration": 31,
       "parent": "PEA_SKILL_Foundations",
-      "progress": 0.0,
-      "open": true,
-      "color": "#2196F3"
+      "color": "#F44336",
+      "progress": 0.0
+    },
+    {
+      "id": "PEA_SKILL_Foundations_A_W_1",
+      "text": "Traditional knowledge",
+      "start_date": "2025-08-04",
+      "duration": 11,
+      "parent": "PEA_SKILL_Foundations_A",
+      "color": "#FF9800"
+    },
+    {
+      "id": "PEA_SKILL_Foundations_A_W_2",
+      "text": "Personal Training",
+      "start_date": "2025-08-18",
+      "duration": 13,
+      "parent": "PEA_SKILL_Foundations_A",
+      "color": "#FF9800"
     },
     {
       "id": "PEA_SKILL_Foundations_B",
@@ -79,28 +92,42 @@
       "start_date": "2025-09-08",
       "duration": 31,
       "parent": "PEA_SKILL_Foundations",
-      "progress": 0.0,
-      "open": true,
-      "color": "#2196F3"
+      "color": "#F44336",
+      "progress": 0.0
+    },
+    {
+      "id": "PEA_SKILL_Foundations_B_W_1",
+      "text": "Introduction to GIS & ArcGIS Pro Basics",
+      "start_date": "2025-09-08",
+      "duration": 16,
+      "parent": "PEA_SKILL_Foundations_B",
+      "color": "#FF9800"
+    },
+    {
+      "id": "PEA_SKILL_Foundations_B_W_2",
+      "text": "Map Projection & Coordinate Systems",
+      "start_date": "2025-09-27",
+      "duration": 12,
+      "parent": "PEA_SKILL_Foundations_B",
+      "color": "#FF9800"
     },
     {
       "id": " PEA_IND_Utl_Solar",
       "text": " PEA_IND_Utl_Solar",
       "start_date": "2025-11-12",
       "duration": 64,
-      "progress": 0.0,
       "open": true,
-      "color": "#4CAF50"
+      "color": "#4CAF50",
+      "progress": 0.5
     },
     {
       "id": "PEA_IND_Utl_Solar_A",
       "text": "Define Scope and Priorities",
-      "start_date": "2025-11-12",
-      "duration": 64,
+      "start_date": "2025-11-15",
+      "duration": 61,
       "parent": " PEA_IND_Utl_Solar",
-      "progress": 0.0,
-      "open": true,
-      "color": "#2196F3"
+      "color": "#F44336",
+      "progress": 0.0
     },
     {
       "id": "PEA_IND_Utl_Solar_A_T_1",
@@ -108,7 +135,7 @@
       "start_date": "2025-11-15",
       "duration": 9,
       "parent": "PEA_IND_Utl_Solar_A",
-      "color": "#FFEB3B"
+      "color": "#FC0BB3"
     },
     {
       "id": "PEA_IND_Utl_Solar_A_T_2",
@@ -116,7 +143,7 @@
       "start_date": "2025-12-02",
       "duration": 24,
       "parent": "PEA_IND_Utl_Solar_A",
-      "color": "#FFEB3B"
+      "color": "#FC0BB3"
     },
     {
       "id": "PEA_IND_Utl_Solar_A_T_3",
@@ -124,38 +151,74 @@
       "start_date": "2026-01-01",
       "duration": 14,
       "parent": "PEA_IND_Utl_Solar_A",
-      "color": "#FFEB3B"
+      "color": "#FC0BB3"
     }
   ],
   "links": [
     {
-      "id": "link_1",
+      "id": "L1",
+      "source": "PEA_SKILL_Foundations_B_W_2",
+      "target": "PEA_IND_Env_Monitor_A_T_1",
+      "type": "0"
+    },
+    {
+      "id": "L2",
       "source": "PEA_IND_Env_Monitor_A_T_1",
       "target": "PEA_IND_Env_Monitor_A_T_2",
       "type": "0"
     },
     {
-      "id": "link_2",
-      "source": "PEA_IND_Env_Monitor_A",
-      "target": "PEA_IND_Env_Monitor_B",
+      "id": "L3",
+      "source": "PEA_SKILL_Foundations_B_W_2",
+      "target": "PEA_IND_Env_Monitor_A_T_2",
       "type": "0"
     },
     {
-      "id": "link_3",
-      "source": "PEA_SKILL_Foundations_A",
-      "target": "PEA_SKILL_Foundations_B",
+      "id": "L4",
+      "source": "PEA_IND_Env_Monitor_A_T_2",
+      "target": "PEA_IND_Env_Monitor_B_T_1",
       "type": "0"
     },
     {
-      "id": "link_4",
+      "id": "L5",
+      "source": "PEA_IND_Env_Monitor_B_T_1",
+      "target": "PEA_IND_Env_Monitor_B_T_2",
+      "type": "0"
+    },
+    {
+      "id": "L6",
+      "source": "PEA_SKILL_Foundations_B_W_2",
+      "target": "PEA_IND_Utl_Solar_A_T_1",
+      "type": "0"
+    },
+    {
+      "id": "L7",
       "source": "PEA_IND_Utl_Solar_A_T_1",
       "target": "PEA_IND_Utl_Solar_A_T_2",
       "type": "0"
     },
     {
-      "id": "link_5",
+      "id": "L8",
       "source": "PEA_IND_Utl_Solar_A_T_2",
       "target": "PEA_IND_Utl_Solar_A_T_3",
+      "type": "0"
+    },
+    {
+      "id": "L9",
+      "source": "PEA_SKILL_Foundations_A_W_2",
+      "target": "PEA_SKILL_Foundations_B_W_1",
+      "type": "0"
+    },
+    {
+      "id": "L10",
+      "source": "PEA_SKILL_Foundations_B_W_1",
+      "target": "PEA_SKILL_Foundations_B_W_2",
+      "type": "0"
+    },
+    {
+      "id": "L11",
+      "source": "PEA_SKILL_Foundations_A_W_1",
+      "target": "PEA_SKILL_Foundations_A_W_2",
       "type": "0"
     }
   ]
