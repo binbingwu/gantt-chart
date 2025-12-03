@@ -34,7 +34,7 @@ jobs:
           pip install pandas arcgis
 
       # --- 4. Run Auto Workflow Pipeline ---
-      # This triggers Auto_Workflow.py, which orchestrates:
+      # This triggers Auto_Workf_low.py, which orchestrates:
       # 1. Day_Dynamic_Computing.py (Schedule Calculation)
       # 2. Gantt_Chart.py (JSON Generation)
       - name: Execute Auto Workflow
@@ -42,7 +42,7 @@ jobs:
           ARCGIS_USERNAME: ${{ secrets.ARCGIS_USERNAME }}
           ARCGIS_PASSWORD: ${{ secrets.ARCGIS_PASSWORD }}
         run: |
-          python Auto_Workflow.py
+          python Auto_Work_flow.py
 
       # --- 5. Commit and Push Results ---
       - name: Commit updated data and refresh HTML
