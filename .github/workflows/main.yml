@@ -1,63 +1,72 @@
-name: Update ArcGIS Gantt Data
+name: Update ArcGIS Gantt Data Workflow
 
 on:
   schedule:
-    - cron: "0 2 * * 1"   # schedule every monday 2 am
-  workflow_dispatch:       # tragger
+    - cron: "0 2 * * *"   # Schedule: Runs every day at 02:00 UTC
+  workflow_dispatch:      # Trigger: Allows manual execution from the Actions tab
 
 permissions:
-  contents: write          # access for write
-  pages: write             # redeploy pages
-  id-token: write          # api ver
-  actions: write           # allow to trg next wf
+  contents: write         # Access to commit and push changes
+  pages: write            # Access to trigger Pages rebuilds
+  id-token: write         # Required for OIDC authentication (if used)
+  actions: write          # Allow triggering subsequent workflows
 
 jobs:
-  update:
+  update_process:
     runs-on: ubuntu-latest
 
     steps:
-      # --- check repo ---
+      # --- 1. Checkout Repository ---
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          persist-credentials: false  
+          persist-credentials: false  # We use a custom token for pushing later
 
-      # --- 2️⃣ Setting up Python env ---
+      # --- 2. Set up Python Environment ---
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      # --- 3️⃣ Install dependency ---
-      - name: Install dependencies
+      # --- 3. Install Dependencies ---
+      - name: Install Python dependencies
         run: |
           pip install pandas arcgis
 
-      # --- 4️⃣ run ETL script，generate new data.json ---
-      - name: Run ETL script
+      # --- 4. Run Auto Workflow Pipeline ---
+      # This triggers Auto_Workflow.py, which orchestrates:
+      # 1. Day_Dynamic_Computing.py (Schedule Calculation)
+      # 2. Gantt_Chart.py (JSON Generation)
+      - name: Execute Auto Workflow
         env:
           ARCGIS_USERNAME: ${{ secrets.ARCGIS_USERNAME }}
           ARCGIS_PASSWORD: ${{ secrets.ARCGIS_PASSWORD }}
         run: |
-          python Project_Management_ETL.py
+          python Auto_Workflow.py
 
-      # --- 5️⃣ Submit data.json refresh HTML ---
-      - name: Commit updated data.json and refresh HTML
+      # --- 5. Commit and Push Results ---
+      - name: Commit updated data and refresh HTML
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Configure git bot user
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          # Ensure docs folder exists and touch index.html to ensure Pages has an entry point
+          mkdir -p docs
           touch docs/index.html
 
+          # Stage specific files
           git add docs/data.json docs/index.html
-          git commit -m "Auto update data.json and refresh HTML" || echo "No changes"
 
-          # ✅ Push to main branch
+          # Commit changes (if any)
+          git commit -m "Auto-generated: Update Schedule & Gantt Data" || echo "No changes to commit"
+
+          # Push to main branch using the GitHub Token
           git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git main
 
-      # --- 6️⃣  GitHub Pages redelopment ---
+      # --- 6. Trigger GitHub Pages Rebuild ---
       - name: Trigger GitHub Pages rebuild
         run: |
           echo "🔁 Triggering GitHub Pages rebuild..."
@@ -65,6 +74,6 @@ jobs:
                -H "Accept: application/vnd.github.v3+json" \
                https://api.github.com/repos/${{ github.repository }}/pages/builds
 
-      # --- 7️⃣ print Notification ---
-      - name: Done
-        run: echo "✅ ArcGIS Gantt Data updated and Pages redeployed successfully."
+      # --- 7. Completion Notification ---
+      - name: Workflow Complete
+        run: echo "✅ Auto Workflow executed successfully. Data updated and Pages rebuild triggered."
