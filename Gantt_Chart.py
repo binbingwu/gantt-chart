@@ -101,8 +101,12 @@ def generate_gantt():
                 
                 # Check Delay
                 color = get_color("object")
-                if pd.notna(s_act) and pd.notna(s_plan) and s_act > s_plan:
-                    color = get_color("delayed")
+                is_late = False
+                if all(pd.notna(x) for x in [s_plan, e_plan, s_act, e_act]):
+                    delay_start_days = (s_act.normalize() - s_plan.normalize()).days
+                    delay_end_days = (e_act.normalize() - e_plan.normalize()).days
+                    if delay_start_days >= 1 and delay_end_days >= 1:
+                        color = get_color("delayed")
 
                 gantt_data.append({
                     "id": obj_id, "text": obj.get("ObjName", obj_id),
